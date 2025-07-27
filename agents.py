@@ -8,8 +8,8 @@ from typing import List
 from typing import List, Dict
 
 # Assuming autogen and config are predefined modules similar to the initial setup
-linkedin_bot = autogen.AssistantAgent(
-    name="linkedin_bot",
+twitter_bot = autogen.AssistantAgent(
+    name="twitter_bot",
     system_message="For twitter posts, only use the functions you have been provided with. Notify the description maker when the task is done.",
     llm_config=config.llm_config,
 )
@@ -79,7 +79,7 @@ if __name__ == "__main__":
     postTweet(api, tweet_text)
 
 @user_proxy.register_for_execution()
-@linkedin_bot.register_for_llm(description="Fetch and format competitor posts.")
+@twitter_bot.register_for_llm(description="Fetch and format competitor posts.")
 def fetch_and_format_posts():
     consumer_key = 'CTcqMGYZ1WVOejUyzR4IGukCD'
     consumer_secret = 'M0tODYQj936VCfBtFPM9wYt1norJ4EXdcF4wxQcdvOPZJYLRzR'
@@ -120,5 +120,5 @@ def analyze_tweets_and_create_thread(csv_file_path: str) -> str:
     
     return tweet_thread_str
 
-group_chat = autogen.GroupChat(agents=[user_proxy, linkedin_bot, description_maker], messages=[], max_round=5)
+group_chat = autogen.GroupChat(agents=[user_proxy, twitter_bot, description_maker], messages=[], max_round=5)
 manager = autogen.GroupChatManager(groupchat=group_chat, llm_config=config.llm_config)
