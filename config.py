@@ -1,5 +1,12 @@
 import os
-import dotenv
+try:
+    import dotenv
+except ModuleNotFoundError:  # pragma: no cover - runtime fallback
+    class dotenv:
+        @staticmethod
+        def load_dotenv(*args, **kwargs):
+            """Fallback no-op if python-dotenv is unavailable."""
+            pass
 
 dotenv.load_dotenv()
 
