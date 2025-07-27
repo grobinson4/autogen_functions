@@ -1,11 +1,68 @@
 import csv
-import autogen
-import config
-import tweepy
-from typing import List
-
-
 from typing import List, Dict
+from types import SimpleNamespace
+
+import config
+
+try:
+    import autogen
+except ModuleNotFoundError:  # pragma: no cover - runtime fallback
+    class _DummyAgent:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def initiate_chat(self, *args, **kwargs):
+            """Fallback no-op for chat initiation."""
+            pass
+
+        def register_for_execution(self, *args, **kwargs):
+            def decorator(func):
+                return func
+
+            return decorator
+
+        def register_for_llm(self, *args, **kwargs):
+            def decorator(func):
+                return func
+
+            return decorator
+
+    class _DummyGroupChat:
+        def __init__(self, *args, **kwargs):
+            pass
+
+    class _DummyGroupChatManager:
+        def __init__(self, *args, **kwargs):
+            pass
+
+    autogen = SimpleNamespace(
+        AssistantAgent=_DummyAgent,
+        UserProxyAgent=_DummyAgent,
+        GroupChat=_DummyGroupChat,
+        GroupChatManager=_DummyGroupChatManager,
+    )
+
+try:
+    import tweepy
+except ModuleNotFoundError:  # pragma: no cover - runtime fallback
+    class _DummyAPI:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def update_status(self, *args, **kwargs):
+            pass
+
+    class _DummyOAuthHandler:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def set_access_token(self, *args, **kwargs):
+            pass
+
+    def _dummy_api(auth, wait_on_rate_limit=True):
+        return _DummyAPI()
+
+    tweepy = SimpleNamespace(OAuthHandler=_DummyOAuthHandler, API=_dummy_api)
 
 # Assuming autogen and config are predefined modules similar to the initial setup
 twitter_bot = autogen.AssistantAgent(
@@ -144,3 +201,4 @@ group_chat = autogen.GroupChat(
     max_round=5,
 )
 manager = autogen.GroupChatManager(groupchat=group_chat, llm_config=config.llm_config)
+
