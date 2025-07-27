@@ -20,6 +20,15 @@ description_maker = autogen.AssistantAgent(
     llm_config=config.llm_config,
 )
 
+feedback_agent = autogen.AssistantAgent(
+    name="feedback_agent",
+    system_message=(
+        "You analyze tweets or tweet threads and offer brief, constructive "
+        "feedback. Reply TERMINATE when done."
+    ),
+    llm_config=config.llm_config,
+)
+
 user_proxy = autogen.UserProxyAgent(
     name="user_proxy",
     # Ensure a boolean is returned even when "content" is missing
@@ -115,8 +124,23 @@ def analyze_tweets_and_create_thread(csv_file_path: str) -> str:
     
     # Combine the individual tweets into a single string to simulate a tweet thread
     tweet_thread_str = "\n\n".join(tweet_thread)
-    
+
     return tweet_thread_str
 
-group_chat = autogen.GroupChat(agents=[user_proxy, twitter_bot, description_maker], messages=[], max_round=5)
+
+@feedback_agent.register_for_llm(description="Provide feedback on a tweet or tweet thread.")
+def provide_tweet_feedback(tweet_text: str) -> str:
+    """Return simple feedback about the length of the tweet text."""
+    length = len(tweet_text)
+    if length > 200:
+        return "Consider reducing the length of the tweet for better engagement."
+    if length < 10:
+        return "The tweet is very short; consider adding more context."
+    return "The tweet length looks good."
+
+group_chat = autogen.GroupChat(
+    agents=[user_proxy, twitter_bot, description_maker, feedback_agent],
+    messages=[],
+    max_round=5,
+)
 manager = autogen.GroupChatManager(groupchat=group_chat, llm_config=config.llm_config)
