@@ -93,7 +93,7 @@ def fetch_and_format_posts():
     return 'done'
 
 # Function for the description maker to analyze the CSV and create a tweet thread
-@description_maker.register_for_llm(description="Create blog post from competitor post analysis.")
+@description_maker.register_for_llm(description="Create tweet thread from competitor post analysis.")
 def analyze_tweets_and_create_thread(csv_file_path: str) -> str:
     tweets = []
     # Read the CSV file
