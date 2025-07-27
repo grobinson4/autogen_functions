@@ -108,14 +108,12 @@ def analyze_tweets_and_create_thread(csv_file_path: str) -> str:
     for tweet in tweets:
         # For the sake of this example, let's just append each tweet to our thread
         # In a real scenario, you'd perform analysis to determine how to construct your thread
-        tweet_thread.append(f"User @{tweet['user']} said: {tweet['tweet']} on {tweet['date']}.")
+        entry = f"User @{tweet['user']} said: {tweet['tweet']} on {tweet['date']}."
+        # Truncate each entry to Twitter's maximum character limit
+        tweet_thread.append(entry[:280])
     
     # Combine the individual tweets into a single string to simulate a tweet thread
     tweet_thread_str = "\n\n".join(tweet_thread)
-    
-    # Check if the thread is too long and truncate if necessary (Twitter has a character limit per tweet)
-    if len(tweet_thread_str) > 280:
-        tweet_thread_str = tweet_thread_str[:277] + "..."
     
     return tweet_thread_str
 
